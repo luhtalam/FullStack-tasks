@@ -1,3 +1,3 @@
 # FullStack-tasks
 
-Beta testing a Full Stack -course
+Full Stack -course beta testing
