@@ -15,14 +15,9 @@ class App extends React.Component {
 
 
 
-  setValue = (name, value) => () => {
-    if (name == "hyvä") {
-      this.setState({ hyva: value })
-    } else if (name == "neutraali") {
-      this.setState({ neutraali: value })
-    } else if (name == "huono") {
-      this.setState({ huono: value })
-    }
+  increaseByOne = (name) => () => {
+    const newValue = this.state[name]+1
+    return (this.setState({[name]: newValue}))
   }
 
   render() {
@@ -32,9 +27,9 @@ class App extends React.Component {
           <h1>Anna palautetta</h1>
         </div>
         <div>
-          <Button handleClick={this.setValue("hyvä", this.state.hyva + 1)} text='Hyva' />
-          <Button handleClick={this.setValue("neutraali", this.state.neutraali + 1)} text='Neutraali' />
-          <Button handleClick={this.setValue("huono", this.state.huono + 1)} text='Huono' />
+          <Button handleClick={this.increaseByOne("hyva")} text='Hyvä' />
+          <Button handleClick={this.increaseByOne("neutraali")} text='Neutraali' />
+          <Button handleClick={this.increaseByOne("huono")} text='Huono' />
         </div>
         <div>
           <h1>Statistiikka</h1>
@@ -55,18 +50,18 @@ const Button = ({ handleClick, text }) => (
 
 const mean = (props) => {
   const sum = props.hyva + props.neutraali + props.huono
-  if (sum == 0) return 0
+  if (sum === 0) return 0
   return (props.hyva - props.huono) / sum
 }
 
 const positive = (props) => {
   const sum = props.hyva + props.neutraali + props.huono
-  if (sum == 0) return 0
+  if (sum === 0) return 0
   return (100 * props.hyva / sum)
 }
 
 const Statistics = (props) => {
-  if (props.hyva == 0 && props.neutraali == 0 && props.huono == 0) {
+  if (props.hyva === 0 && props.neutraali === 0 && props.huono === 0) {
     return (
       <div>
         <p>yhtään palautetta ei ole annettu </p>
@@ -90,7 +85,7 @@ const Statistic = ({ name, value }) => {
   return (
     <tr>
       <td>{name}</td>
-      <td> {value}</td>
+      <td>{value}</td>
     </tr>
   )
 }
