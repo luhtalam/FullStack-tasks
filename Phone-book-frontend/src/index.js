@@ -69,6 +69,9 @@ class App extends React.Component {
                     this.setState({ notification: null })
                 }, 5000)
             })
+            .catch(error => {
+                console.log(error)
+            })
     }
 
     updatePerson = (id, personObject) => {
@@ -114,7 +117,7 @@ class App extends React.Component {
     }
 
     render() {
-        const byId = (person1, person2) => person1.id - person2.id
+        const byId = (person1, person2) => person1.id.localeCompare(person2.id)
 
         const personsToShow =
             this.state.filter === '' ?
