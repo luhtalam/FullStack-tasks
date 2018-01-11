@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken')
-
 const logger = (request, response, next) => {
   if (process.env.NODE_ENV === 'test') {
     return next()
