@@ -26,6 +26,15 @@ blogsRouter.get('/', async (request, response) => {
   }
 })
 
+const validateTitleAndUrl = (body) => {
+  if(body.title === undefined || body.title === ''){
+    return false
+  } else if (body.url === undefined || body.url === '') {
+    return false
+  }
+  return true
+}
+
 blogsRouter.post('/', async (request, response) => {
   try {
     const body = request.body
@@ -35,8 +44,8 @@ blogsRouter.post('/', async (request, response) => {
       return response.status(401).json({ error: 'token missing or invalid' })
     }
 
-    if (body.title === undefined || body.url === undefined) {
-      return response.status(400).end()
+    if (!validateTitleAndUrl(body)) {
+      return response.status(400).json({ error: 'title or url missing' })
     }
     const user = await User.findById(decodedToken.id)
 
@@ -70,11 +79,12 @@ blogsRouter.put('/:id', async (request, response) => {
       title: body.title,
       author: body.author,
       url: body.url,
-      likes: body.likes
+      likes: body.likes,
+      user: body.user
     })
     const updatedBlog = await Blog
       .findByIdAndUpdate(request.params.id, blog, { new: true })
-    response.json(updatedBlog)
+    response.json(formatBlog(updatedBlog))
   } catch (exception) {
     response.status(400).send({ error: 'malformatted id' })
   }
