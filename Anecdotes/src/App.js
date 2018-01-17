@@ -1,14 +1,17 @@
 import React from 'react'
 import AnecdoteList from './components/AnecdoteList'
 import AnecdoteForm from './components/AnecdoteForm'
+import Notification from './components/Notification'
 
 
 class App extends React.Component {
   render() {
     return (
       <div>
-        <AnecdoteList store={this.props.store}/>
-        <AnecdoteForm store={this.props.store}/>
+        <h1>Programming anecdotes</h1>
+        <Notification />
+        <AnecdoteForm />
+        <AnecdoteList />
       </div>
     )
   }
