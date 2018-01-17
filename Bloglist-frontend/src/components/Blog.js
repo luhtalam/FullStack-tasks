@@ -45,7 +45,7 @@ class Blog extends React.Component {
     }
     if (this.state.visible) {
       return (
-        <div style={blogStyle} onClick={this.toggleVisibility}>
+        <div style={blogStyle} onClick={this.toggleVisibility} className='info'>
           {this.state.blog.title} {this.state.blog.author}
           <ul>
             <li>{this.state.blog.url}</li>
@@ -59,7 +59,7 @@ class Blog extends React.Component {
       )
     }
     return (
-      <div style={blogStyle} onClick={this.toggleVisibility}>
+      <div style={blogStyle} onClick={this.toggleVisibility} className='info'>
         {this.state.blog.title} {this.state.blog.author}
       </div>
     )
