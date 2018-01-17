@@ -14,9 +14,12 @@ class Anecdote extends React.Component {
   }
 
   render() {
+    const style = {
+      marginBottom: 10,
+    }
     const anecdote = this.props.anecdote
     return (
-      <div key={anecdote.id}>
+      <div style={style} key={anecdote.id}>
         <div>
           {anecdote.content}
         </div>
