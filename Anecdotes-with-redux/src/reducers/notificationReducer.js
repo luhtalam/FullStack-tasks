@@ -7,7 +7,7 @@ const reducer = (store = null, action) => {
   }
 }
 
-export const notificationSetting = (notification) => {
+const notificationSetting = (notification) => {
   return {
     type: 'SET_MESSAGE',
     notification
@@ -18,6 +18,17 @@ export const notificationDeletion = () => {
   return {
     type: 'SET_MESSAGE',
     notification: null
+  }
+}
+
+export const notify = (notification, timeout) => {
+  return async (dispatch) => {
+    await dispatch(
+      notificationSetting(notification)
+    )
+    await setTimeout(() => {
+      dispatch(notificationDeletion())
+    }, 1000 * timeout);
   }
 }
 

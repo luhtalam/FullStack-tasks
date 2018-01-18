@@ -2,9 +2,14 @@ import React from 'react'
 import AnecdoteList from './components/AnecdoteList'
 import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
-
+import { connect } from 'react-redux'
+import { anecdoteInitialization } from './reducers/anecdoteReducer'
 
 class App extends React.Component {
+  componentWillMount = async () =>{
+    this.props.anecdoteInitialization()
+  }
+
   render() {
     return (
       <div>
@@ -17,4 +22,7 @@ class App extends React.Component {
   }
 }
 
-export default App
+export default connect(
+  null,
+  { anecdoteInitialization }
+)(App)

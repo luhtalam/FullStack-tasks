@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore, combineReducers } from 'redux'
+import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
+import thunk from 'redux-thunk'
+import { composeWithDevTools } from 'redux-devtools-extension'
 import App from './App';
 import anecdoteReducer from './reducers/anecdoteReducer'
 import notificationReducer from './reducers/notificationReducer'
@@ -13,16 +15,16 @@ const reducer = combineReducers({
   filter: filterReducer
 })
 
-const store = createStore(reducer)
-
-const render = () => {
-  ReactDOM.render(
-    <Provider store={store}>
-      <App store={store} />
-    </Provider>,
-    document.getElementById('root')
+const store = createStore(
+  reducer,
+  composeWithDevTools(
+    applyMiddleware(thunk)
   )
-}
+)
 
-render()
-store.subscribe(render)
+ReactDOM.render(
+  <Provider store={store}>
+    <App store={store} />
+  </Provider>,
+  document.getElementById('root')
+)

@@ -1,16 +1,13 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { addVote } from '../reducers/anecdoteReducer'
-import { notificationSetting, notificationDeletion } from '../reducers/notificationReducer'
+import { notify } from '../reducers/notificationReducer'
 
 class Anecdote extends React.Component {
   voteAnecdote = (anecdote) => () => {
     const notification = `you voted '${anecdote.content}'`
-    this.props.addVote(anecdote.id)
-    this.props.notificationSetting(notification)
-    setTimeout(() => {
-      this.props.notificationDeletion()
-    }, 5000)
+    this.props.addVote(anecdote)
+    this.props.notify(notification,5)
   }
 
   render() {
@@ -42,5 +39,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  { addVote, notificationSetting, notificationDeletion }
+  { addVote, notify }
 )(Anecdote)
