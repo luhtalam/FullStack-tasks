@@ -2,11 +2,6 @@ import React from 'react'
 
 
 class App extends React.Component {
-  increaseByOne = (name) => () => {
-    const newValue = this.state[name] + 1
-    return (this.setState({ [name]: newValue }))
-  }
-
   render() {
     return (
       <div>
