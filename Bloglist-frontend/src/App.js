@@ -1,150 +1,79 @@
 import React from 'react'
-import Blog from './components/Blog'
+import { connect } from 'react-redux'
+import { Route, Redirect } from 'react-router-dom'
+import { blogInitialization } from './reducers/blogReducer'
+import { userInitialization, userLogout } from './reducers/loginReducer'
+import { usersInitialization } from './reducers/userReducer'
+import { notify } from './reducers/notificationReducer'
 import Notification from './components/Notification'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
-import blogService from './services/blogs'
-import loginService from './services/login'
+import Home from './components/Home'
+import LoginForm from './components/LoginForm'
+import UserList from './components/UserList'
+import User from './components/User'
 
 class App extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      user: null,
-      username: '',
-      password: '',
-      message: null,
-      blogs: []
-    }
-  }
-
   componentWillMount() {
-    blogService.getAll().then(blogs =>
-      this.setState({ blogs })
-    )
-
-    const loggedUserJSON = window.localStorage.getItem('loggedUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      this.setState({ user })
-      blogService.setToken(user.token)
-    }
+    console.log(1)
+    //this.props.userInitialization()
+    console.log(2)
+    this.props.blogInitialization()
+    console.log(3)
+    this.props.usersInitialization()
+    console.log(4)
   }
 
-  handleLoginFieldChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value })
+  logout = () => {
+    const notification = `${this.props.loggedUser.username} logged out`
+    this.props.userLogout()
+    this.props.notify(notification, 5)
   }
 
-  login = async (e) => {
-    e.preventDefault()
-    try {
-      const user = await loginService.login({
-        username: this.state.username,
-        password: this.state.password
-      })
-
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      this.setState({ username: '', password: '', user })
-    } catch (exception) {
-      this.setState({ message: 'wrong username or password ' })
-      setTimeout(() => {
-        this.setState({ message: null })
-      }, 5000)
-    }
-  }
-
-  logout = (e) => {
-    e.preventDefault()
-    window.localStorage.removeItem('loggedUser')
-
-    this.setState({
-      message: `${this.state.user.username} logged out`,
-      user: null
-    })
-    setTimeout(() => {
-      this.setState({ message: null })
-    }, 5000)
-  }
-
-  loginForm = () => {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        <form onSubmit={this.login}>
-          <div>
-            username:
-          <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <div>
-            password:
-          <input
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleLoginFieldChange}
-            />
-          </div>
-          <button>login</button>
-        </form>
-      </div>
-    )
-  }
-
-  blogForm = () => {
-    return (
-      <div>
-        <p>add new blog</p>
-      </div>
-    )
-  }
-
-  blogs = () => {
-    return (
-      <div>
-        <h2>Blogs</h2>
-        {this.state.blogs.length !== 0 ? this.state.blogs.map(blog =>
-          <Blog key={blog._id} blog={blog} />
-        ) : "no added blogs"}
-      </div>
-    )
+  userById = (id) => {
+    console.log(id)
+    console.log(this.props.users)
+    return this.props.users.find(user => user.id === id)
   }
 
   render() {
-    if (this.state.user === null) {
-      return (
-        <div>
-          <Notification message={this.state.message} />
-          {this.loginForm()}
-        </div>
-      )
-    }
+    console.log('render')
+    console.log(this.props.loggedUser)
     return (
       <div>
+        <Notification />
+        <h1>Blog app</h1>
         <div>
-          <Notification message={this.state.message} />
-          <p>{`${this.state.user.username} logged in `}
-            <button onClick={this.logout}>logout</button>
-          </p>
+          {this.props.loggedUser
+            ? <p>
+              {`${this.props.loggedUser.username} logged in `}
+              <button onClick={this.logout}>logout</button>
+            </p>
+            : ''}
         </div>
         <div>
-          <Togglable buttonLabel='new blog'>
-            <BlogForm user={this.state.user} />
-          </Togglable>
-        </div>
-        <div>
-          <h2>Blogs</h2>
-          {this.state.blogs.map(blog => 
-          <Blog key={blog.id} blog={blog} />)}
+          <Route exact path='/' render={() => {
+            if (this.props.loggedUser) {
+              return <Home />
+            } else {
+              return <Redirect to='/login' />
+            }
+          }} />
+          <Route exact path='/login' render={({ history }) => <LoginForm history={history} />} />
+          <Route exact path='/users' component={UserList} />
+          <Route exact path='/users/:id' render={({ match }) => <User user={this.userById(match.params.id)}/>} />
         </div>
       </div>
     )
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    loggedUser: state.loggedUser,
+    users: state.users
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  { blogInitialization, userInitialization, usersInitialization, notify, userLogout }
+)(App)

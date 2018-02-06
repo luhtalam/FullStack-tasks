@@ -10,7 +10,7 @@ const formatBlog = (blog) => {
     author: blog.author,
     url: blog.url,
     likes: blog.likes,
-    user: blog.user
+    user: {username: blog.user.username}
   }
 }
 
@@ -27,7 +27,7 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 const validateTitleAndUrl = (body) => {
-  if(body.title === undefined || body.title === ''){
+  if (body.title === undefined || body.title === '') {
     return false
   } else if (body.url === undefined || body.url === '') {
     return false
@@ -41,6 +41,7 @@ blogsRouter.post('/', async (request, response) => {
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
     if (!request.token || !decodedToken.id) {
+      console.log('token missing')
       return response.status(401).json({ error: 'token missing or invalid' })
     }
 
@@ -58,10 +59,11 @@ blogsRouter.post('/', async (request, response) => {
     })
 
     const savedBlog = await blog.save()
+    Blog.populate(savedBlog, 'user')
 
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
-    response.status(201).json(savedBlog)
+    response.status(201).json(formatBlog(savedBlog))
   } catch (exception) {
     if (exception.name === 'JsonWebTokenError') {
       response.status(401).json({ error: exception.message })
@@ -72,18 +74,12 @@ blogsRouter.post('/', async (request, response) => {
   }
 })
 
-blogsRouter.put('/:id', async (request, response) => {
+blogsRouter.patch('/:id', async (request, response) => {
   try {
     const body = request.body
-    const blog = ({
-      title: body.title,
-      author: body.author,
-      url: body.url,
-      likes: body.likes,
-      user: body.user
-    })
     const updatedBlog = await Blog
-      .findByIdAndUpdate(request.params.id, blog, { new: true })
+      .findByIdAndUpdate(request.params.id, body, { new: true })
+      .populate('user', { username: 1, name: 1 })
     response.json(formatBlog(updatedBlog))
   } catch (exception) {
     response.status(400).send({ error: 'malformatted id' })

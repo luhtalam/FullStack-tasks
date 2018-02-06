@@ -1,37 +1,33 @@
 import React from 'react'
-import blogService from '../services/blogs'
+import { connect } from 'react-redux'
+import { blogDeletion, addLike } from '../reducers/blogReducer'
+import { notify } from '../reducers/notificationReducer'
 
 class Blog extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      visible: false,
-      blog: props.blog
-    }
-  }
-
-  toggleVisibility = () => {
-    this.setState({ visible: !this.state.visible })
-  }
-
-  addLike = async (e) => {
-    e.preventDefault()
-    const blogObject = {
-      user: this.state.blog.user,
-      likes: this.state.blog.likes + 1,
-      author: this.state.blog.author,
-      title: this.state.blog.title,
-      url: this.state.blog.url,
-    }
-    const updatedBlog = await blogService.update(this.state.blog.id, blogObject)
-    this.setState({ blog: updatedBlog })
-  }
 
   deleteBlog = async (e) => {
     e.preventDefault()
-    if (window.confirm(`delete ${this.state.blog.title} ${this.state.blog.author}?`)){
-      await blogService.remove(this.state.blog.id)
+    if (window.confirm(`delete ${this.props.blog.title} ${this.props.blog.author}?`)) {
+      let notification = ''
+      try {
+        await this.props.blogDeletion(this.props.blog.id)
+        notification = `${this.props.blog.title} deleted`
+      } catch (error) {
+        notification = 'something went wrong'
+      }
+      this.props.notify(notification, 5)
     }
+  }
+
+  addLike = async () => {
+    let notification = ''
+    try {
+      await this.props.addLike(this.props.blog)
+      notification = `you liked ${this.props.blog.title}`
+    } catch (error) {
+      notification = `cannot add like to ${this.props.blog.title}`
+    }
+    this.props.notify(notification,5)
   }
 
   render() {
@@ -43,27 +39,24 @@ class Blog extends React.Component {
       borderWidth: 1,
       marginBottom: 5
     }
-    if (this.state.visible) {
-      return (
-        <div style={blogStyle} onClick={this.toggleVisibility} className='info'>
-          {this.state.blog.title} {this.state.blog.author}
-          <ul>
-            <li>{this.state.blog.url}</li>
-            <li>{`${this.state.blog.likes} likes `}
-              <button onClick={this.addLike}>like</button>
-            </li>
-          </ul>
-          {`added by ${this.state.blog.user.username}`}
-          <br/><button onClick={this.deleteBlog}>delete</button>
-        </div>
-      )
-    }
     return (
-      <div style={blogStyle} onClick={this.toggleVisibility} className='info'>
-        {this.state.blog.title} {this.state.blog.author}
+      <div style={blogStyle} className='info'>
+        {this.props.blog.title} {this.props.blog.author}
+        <ul>
+          <li>{this.props.blog.url}</li>
+          <li>{`${this.props.blog.likes} likes `}
+            <button onClick={this.addLike}>like</button>
+          </li>
+        </ul>
+        {`added by ${this.props.blog.user.username}`}
+        <br />
+        <button onClick={this.deleteBlog}>delete</button>
       </div>
     )
   }
 }
 
-export default Blog
+export default connect(
+  null,
+  { blogDeletion, addLike, notify }
+)(Blog)

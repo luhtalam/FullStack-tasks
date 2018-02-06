@@ -1,84 +1,56 @@
 import React from 'react'
-import blogService from '../services/blogs'
-import Notification from './Notification'
+import { connect } from 'react-redux'
+import { blogCreation } from '../reducers/blogReducer'
+import { notify } from '../reducers/notificationReducer'
+
 
 class BlogForm extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      title: '',
-      author: '',
-      url: '',
-      user: props.user,
-      message: null
-    }
-  }
-
-  handleFieldChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value })
-  }
-
-  addNew = async (e) => {
+  addNewBlog = async (e) => {
     e.preventDefault()
+    let notification = ''
     try {
-      const newBlog = {
-        title: this.state.title,
-        author: this.state.author,
-        url: this.state.url
+      const blog = {
+        title: e.target.title.value,
+        author: e.target.author.value,
+        url: e.target.url.value
       }
-      await blogService.create(newBlog)
-      this.setState({
-        title: '',
-        author: '',
-        url: '',
-        message: 'a new blog added'
-      })
+      await this.props.blogCreation(blog)
+      // e.target.title.value = ''
+      // e.target.author.value = ''
+      // e.target.url.value = ''      
+      notification = 'a new blog added'
     } catch (error) {
-      this.setState({message: 'can not add a new blog with these fields'})
+      notification = 'can not add a new blog with these fields'
     }
-    setTimeout(() => {
-      this.setState({ message: null })
-    }, 5000)
+    this.props.notify(notification, 5)
   }
 
   render() {
     return (
       <div>
         <h2>Add new blog</h2>
-        <form onSubmit={this.addNew}>
+        <form onSubmit={this.addNewBlog}>
           <div>
             title:
-          <input
-              type="text"
-              name="title"
-              value={this.state.title}
-              onChange={this.handleFieldChange}
-            />
+           <input type='text' name='title' />
           </div>
           <div>
             author:
-          <input
-              type="text"
-              name="author"
-              value={this.state.author}
-              onChange={this.handleFieldChange}
-            />
+          <input type='text' name='author' />
           </div>
           <div>
             url:
-          <input
-              type="text"
-              name="url"
-              value={this.state.url}
-              onChange={this.handleFieldChange}
-            />
+          <input type='text' name='url' />
           </div>
           <button>add</button>
+
         </form>
-        <Notification message={this.state.message} />
       </div>
     )
   }
 }
 
-export default BlogForm
+export default connect(
+  null,
+  { blogCreation, notify }
+)(BlogForm)
